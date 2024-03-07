@@ -1,1 +1,1 @@
-# lab8
+permalink: /index.html

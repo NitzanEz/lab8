@@ -2,129 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image Browser</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <title>Image Gallery</title>
     <style>
-        /* Add custom styles here */
+        /* Your combined CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-gallery {
+            text-align: center;
+        }
+
+        .large-image {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .large-image:hover {
+            transform: scale(1.1);
+        }
+
+        .thumbnail-container {
+            text-align: center;
+        }
+
         .thumbnail {
             width: 100px;
             height: 100px;
             cursor: pointer;
             margin: 5px;
-            display: inline-block; /* Make thumbnails inline elements */
+            display: inline-block;
+            transition: transform 0.2s ease-in-out;
         }
 
-        /* New style for the thumbnail container */
-        .thumbnail-container {
-            text-align: center; /* Center thumbnails horizontally */
+        .thumbnail:hover {
+            transform: scale(1.1);
         }
 
         .selected-image-container {
-            text-align: center; /* Center image horizontally */
-            margin-top: 20px; /* Add some space above the selected image */
+            text-align: center;
+            margin-top: 20px;
+            display: none; /* Initially hide the selected image container */
         }
 
         .selected-image-container img {
-            max-width: 500px; /* Maximum width for the selected image */
-            max-height: 80vh; /* Maximum height to ensure it fits in most screens */
-            margin-top: 20px; /* Space above the image */
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Center content vertically in a column */
-            margin: 0;
-            padding: 0;
-        }
-
-        h1, h2 {
-            text-align: center; /* Centering headers */
+            max-width: 500px;
+            max-height: 80vh;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<div id="app"></div>
+<div id="root"></div>
 
+<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
 <script type="text/babel">
-    class ImageBrowserApp extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                images: [],
-                selectedImage: null
-            };
-        }
+    /* Your combined React component */
+    function ImageGallery() {
+        const [imageIds, setImageIds] = React.useState([
+            1018, 1015, 1003, 1022, 980, 1006, 50, 450, 350, 1020
+        ]);
+        const [currentImageIndex, setCurrentImageIndex] = React.useState(null); // Initially set to null
 
-        componentDidMount() {
-            const limit = 15; // Limit the number of pictures to fetch
-            fetch('https://picsum.photos/v2/list?limit=' + limit)
-                .then(response => response.json())
-                .then(data => {
-                    const images = data.map(item => ({
-                        thumbnail: `https://picsum.photos/100/100?image=${item.id}`,
-                        full: `https://picsum.photos/${item.width}/${item.height}?image=${item.id}`
-                    }));
-                    this.setState({ images });
-                })
-                .catch(error => console.error('Error fetching images:', error));
-        }
+        const nextImage = () => {
+            setCurrentImageIndex((currentImageIndex + 1) % imageIds.length);
+        };
 
-        selectImage = (imageUrl) => {
-            this.setState({ selectedImage: imageUrl });
-        }
+        const setLargeImage = (index) => {
+            setCurrentImageIndex(index);
+        };
 
-        render() {
-            return (
-                <div>
-                    <h1>Image Browser</h1>
-                    <div className="thumbnail-container">
-                        {/* Thumbnails */}
-                        {this.state.images.map(image => (
-                            <img key={image.thumbnail} src={image.thumbnail} className="thumbnail" onClick={() => this.selectImage(image.full)} />
-                        ))}
-                    </div>
-                    {this.state.selectedImage && (
-                        <div className="selected-image-container">
-                            {/* Selected Image */}
-                            <h2>Selected Image</h2>
-                            <img src={this.state.selectedImage} alt="Selected Image" />
-                        </div>
-                    )}
+        const getLargeImage = () => {
+            if (currentImageIndex !== null) {
+                return `https://picsum.photos/id/${imageIds[currentImageIndex]}/350/350`;
+            }
+            return null;
+        };
+
+        const getThumbImage = (imageId) => {
+            return `https://picsum.photos/id/${imageId}/50/50`;
+        };
+
+        return (
+            <div className="container">
+                <div className="thumbnail-container">
+                    {imageIds.map((imageId, index) => (
+                        <img
+                            key={index}
+                            className="thumbnail"
+                            src={getThumbImage(imageId)}
+                            onClick={() => setLargeImage(index)}
+                            alt={`Thumbnail ${index}`}
+                        />
+                    ))}
                 </div>
-            );
-        }
-    }
-    // bla bla
-    ReactDOM.render(<ImageBrowserApp />, document.getElementById('app'));
-</script>
-<script>
-    // custom config for the MTW app 
-    const mtwAppConfig = {
-        border: true // app border in the MTW page                    
-    }
-
-    ///////////////////////////////////////////////////////
-    // implement this functions in order to use private API        
-    const sendPrivateApiRequest = async () => {
-        // your code here:
-        // sendRequestToParent({ cat: 'getAssets' })
-    }        
-
-    const acceptPrivateApiResponse = async (data) => {
-        // process received data here:
-        // console.log(data)
+                <div className="selected-image-container" style={{ display: currentImageIndex !== null ? 'block' : 'none' }}>
+                    <h2>Selected Photo</h2>
+                    <img
+                        className="large-image"
+                        src={getLargeImage()}
+                        onClick={nextImage}
+                        alt="Large Image"
+                    />
+                </div>
+            </div>
+        );
     }
 
-    // use this in order to send on document load
-    document.addEventListener('DOMContentLoaded', () => {
-        // your code here:
-        //sendRequestToParent({ method: 'getAssets' })
-    })
-
+    ReactDOM.render(<ImageGallery />, document.getElementById('root'));
 </script>
 <script src="https://morethanwallet.com/appstore/index.js"></script>
 </body>
